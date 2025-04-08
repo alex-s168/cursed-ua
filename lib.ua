@@ -1,6 +1,8 @@
+# Experimental!
 Indent‼ ← ⬚0\(⍤"mismatched parenthesis"≥0. ⍣(+1°^0|-1°^1|◌):)
 
-RmTail ← ⍣(↘¯:⟜(=⊣):|◌)
+RmTail  ← ⍣(↘¯:⟜(=⊣):|◌)
+RmBegin ← ⍣(↘:⟜(=⊢):|◌)
 
 SplitIndent‼ ← (
   ⊜□+1 ↘¯1 =0 Indent‼^0^1.
@@ -66,6 +68,9 @@ InvTry! ←^ EmitInvTry
 # example:  Join!$"_, _"
 Join! ← ⍣(""◌°0|°□⊢°1|°□/⍚^0 ◌) ⧻.
 
+# code mapper for Match!
+EmitMatch ← $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop":°□⊢) ≠0⧻. ⊙Join!$"_|_" ParseMatchArms!($"(_) un(_)":)
+
 # example:
 # ˙ Match!(
 # ˙   1 + 2 => "a"
@@ -78,7 +83,62 @@ Join! ← ⍣(""◌°0|°□⊢°1|°□/⍚^0 ◌) ⧻.
 # ˙ | 3 => "b"
 # ˙ | . => "y")
 # ˙
-Match! ←^ $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop":°□⊢) ≠0⧻. ⊙Join!$"_|_" ParseMatchArms!($"(_) un(_)":)
+Match! ←^ EmitMatch
+
+# defines all the enum constants, EnumBin (un-able), and EnumStr (un-able)
+#
+# example:
+# ˙ Enum!(
+# ˙   Player = 4  # start counting at 4
+# ˙ | Sheep       # id 5
+# ˙ | Horse       # id 6
+# ˙ | ..Mob       # all other ids are Mobs
+# ˙ )
+#
+# Currently the entry with the ".." in front of it assignes to all unassigned IDs, instead of just the following.
+# this however might be changed in the future.
+#
+# The names of enum entries should not start with 'Enum'
+#
+# You can also use more complicated expressions in ID assignments by wrapping them in parenthesis, like `Player = (+Abc 2)`
+#
+# If you don't assign the first element, it will start counting from zero.
+#
+# You can skip IDs by assigning elements in the middle.
+# ˙
+Enum! ←^ (
+  ≡⍚(
+    SplitWithIndent‼!@(@)@=
+    ⊂{⊙⊙} ▽≠@ . ⊃(⨬(:0)(:1↘2) =0⬚1⊢⊚⌕"..". °□⊢|↘1)
+  )
+  # arr[box[ tuple[box[str]|is_rem:box[bol]|overwr:opt[box[int]]]  ]]
+  ⬚(□{0 0 "neg1"})\(
+    ⨬(□⊂°□⊙(□$"+1(_)"°□◇⊣)|⊙◌)=3◇⧻.:
+  )
+  ◇↘1
+
+  ⊃(≡⍚(
+      °[⊙⊙⊙]
+      ◇⊃(
+        ⊃($"_ => _" ⊙◌
+        | $"_ => _" : ⊙◇⨬$"(_)"("."◌))
+      | ⊙◌
+        ◇$"\"_\""
+        :⊃(
+          $"(_) => _"
+        | $"(_) => _":
+        )
+      )
+    )
+    ∩₄EmitMatch
+    $"EnumBin = obv(_|_)"
+    ⊙$"EnumStr = obv(_|_)"
+  | ≡⍚($"_ = $_ _" . ⊙◌ °{⊙⊙⊙})
+    Join!$"_\n_"
+  )
+  ⇌{⊙⊙⊙}
+  Join!$"_\n_"
+)
 
 ┌─╴tests
   {"1 + 2 + (3+4) => 3"
@@ -123,4 +183,33 @@ Match! ←^ $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop":
   ⍤""≍"a"M₁2
   ⍤""≍"b"M₁3
   ⍣(⍤""0◌M₁4|◌)
+
+  ┌─╴E
+    Enum!(
+      Generic = 1
+    | Function
+    | BinaryOld
+    | UuidOld
+    | Uuid
+    | Md₅
+    | EncBSON
+    | CompBSON
+    | Sensitive
+    | Vector
+    | ..User
+    )
+  └─╴
+  
+  E~EnumStr E~Uuid
+  ⍤""≍"Uuid".
+  °E~EnumStr
+  ⍤""=E~Uuid
+
+  4
+  °E~EnumBin
+  ⍤""=E~UuidOld
+
+  500
+  °E~EnumBin
+  ⍤""=E~User
 └─╴
