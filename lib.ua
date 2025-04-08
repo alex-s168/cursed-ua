@@ -52,11 +52,14 @@ ParseMatchArms! ← (
   ♭≡(⊡1)
 )
 
+# code mapper of InvTry!
+EmitInvTry ← $"obv((_)|(_))":∩($"try(_)"⨬(°□◇⊢|°□/⍚$"_|_")≥2⧻.)⊸≡⍚($"un(_)")
+
 # invertible try
 #
 # the inverse of InvTry!(A|B|H) is:
 # ˙ try(unA|unB|unH)
-InvTry! ←^ $"obv(_|_)":∩($"try(_)"⨬(°□◇⊢|°□/⍚$"_|_")≥2⧻.)⊸≡⍚($"un(_)")
+InvTry! ←^ EmitInvTry
 
 # join arr of boxed strings with ^0
 #
