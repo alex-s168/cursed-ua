@@ -2,10 +2,10 @@
 uiua code macro library
 
 ```
-C ~ "git: github.com/alex-s168/cursed.ua"
+C ~ "git: github.com/alex-s168/cursed-ua"
 ```
 
-[Auto-generated docs](https://alex-s168.github.io/cursed.ua/)
+[Auto-generated docs](https://alex-s168.github.io/cursed-ua/)
 
 ## Pattern Matching
 ```
