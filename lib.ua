@@ -1,4 +1,3 @@
-# Experimental!
 Indent‼ ← ⬚0\(⍤"mismatched parenthesis"≥0. ⍣(+1°^0|-1°^1|◌):)
 
 RmTail  ← ⍣(↘¯:⟜(=⊣):|◌)
