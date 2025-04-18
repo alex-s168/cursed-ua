@@ -3,22 +3,13 @@ Indent‼ ← ⬚0\(⍤"mismatched parenthesis"≥0. ⍣(+1°^0|-1°^1|◌):)
 RmTail  ← ⍣(↘¯:⟜(=⊣):|◌)
 RmBegin ← ⍣(↘:⟜(=⊢):|◌)
 
-SplitIndent‼ ← (
-  ⊜□+1 ↘¯1 =0 Indent‼^0^1.
-  ⬚(□"")⧈(□₂⊓(RmTail^0|RmTail^1) °□₂) ¤¤2
-)
-
 # macro args: UpIndent DownIndent SplitBy
 #
 # arr[box[str]] ? str
 #
 # example: SplitWithIndent‼! @[ @] @, "[1,2,3]"
 SplitWithIndent‼! ← (
-  SplitIndent‼^0^1
-  ≡(□⊂⊙□⊜□≠^2. °□₂)
-  °□/⍚⊂
-  ↘=0◇⧻⊢.
-  ↘¯=0◇⧻⊣.
+  ⊜□¬×⊃(=0Indent‼^0^1|=^2|∘)
 )
 
 # example: "a + b => x"
