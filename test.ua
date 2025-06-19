@@ -4,7 +4,7 @@
  "a + b => x"}
 ParseMatchArms!$"_>_"
 ⍤""≍{}
-⍤""≍{"1 > 3" " 2 > 3" "3+4> 3" "a > x" " b > x"}
+⍤""≍{"1 > 3" " 2 > 3" " (3+4) > 3" "a > x" " b > x"}
 
 {"1 + 2 + (3+4) => 3"
  "a + b => x"
@@ -12,7 +12,7 @@ ParseMatchArms!$"_>_"
 }
 ParseMatchArms!$"_>_"
 ⍤""≍{" y"}
-⍤""≍{"1 > 3" " 2 > 3" "3+4> 3" "a > x" " b > x"}
+⍤""≍{"1 > 3" " 2 > 3" " (3+4) > 3" "a > x" " b > x"}
 
 Join!$"_, _" {"a b" "c" "ef"}
 ⍤""≍"a b, c, ef"
@@ -45,7 +45,7 @@ M₁ ← Match!(
 
 ┌─╴E
   Enum!(
-    Generic = 1
+    Generic ← 1
   | Function
   | BinaryOld
   | UuidOld

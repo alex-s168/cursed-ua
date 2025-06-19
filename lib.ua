@@ -63,13 +63,13 @@ EmitMatch ← $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop
 
 # example:
 # ˙ Match!(
-# ˙   1 + 2 => "a"
+# ˙ ˙ 1 + 2 => "a"
 # ˙ | 3 => "b"
 # ˙ | . => "y")
 #
 # to put more complicated expression into the match arm cases, surround them with parenthesis:
 # ˙ Match!(
-# ˙   1 + (+1 1) => "a"
+# ˙ ˙ 1 + (+1 1) => "a"
 # ˙ | 3 => "b"
 # ˙ | . => "y")
 # ˙
@@ -79,7 +79,7 @@ Match! ←^ EmitMatch
 #
 # example:
 # ˙ Enum!(
-# ˙   Player = 4  # start counting at 4
+# ˙ ˙ Player = 4  # start counting at 4
 # ˙ | Sheep       # id 5
 # ˙ | Horse       # id 6
 # ˙ | ..Mob       # all other ids are Mobs
@@ -98,14 +98,13 @@ Match! ←^ EmitMatch
 # ˙
 Enum! ←^ (
   ≡⍚(
-    SplitWithIndent‼!@(@)@=
+    SplitWithIndent‼!@(@)@←
     ⊂{⊙⊙} ▽≠@ . ⊃(⨬(:0)(:1↘2) =0⬚1⊢⊚⌕"..". °□⊢|↘1)
   )
-  # arr[box[ tuple[box[str]|is_rem:box[bol]|overwr:opt[box[int]]]  ]]
+  # []box(box[str]|is_rem:box[bol]|overwr:opt[box[int]])
   ⬚(□{0 0 "neg1"})\(
     ⨬(□⊂°□⊙(□$"+1(_)"°□◇⊣)|⊙◌)=3◇⧻.:
   )
-  ◇↘1
 
   ⊃(≡⍚(
       °[⊙⊙⊙]
