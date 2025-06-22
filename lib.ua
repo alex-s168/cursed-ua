@@ -152,8 +152,8 @@ Enum! ←^ (
 
 # See `SelectBits!`
 SelectBitsGen ← (
-  ⊃(⊃(⊣|⊂□"0"↘¯1) \⍚($"+__") .≡⍚$"(_)"
-    $"fill0tak_revbit"
+  ⊃(⊂□"0"↘¯1 \⍚($"+__") .≡⍚$"(_)"
+    $"desrow(revbit,8)"
     ⊙($"fork(_)" /$"_|_" ≡⍚˜$"tak_dro_")
     $"_ _":
   | $"unbitrevjoi,__"⧻: $"bra(_)" /$"_|_" ≡⍚$"revfil0tak_rev".)
