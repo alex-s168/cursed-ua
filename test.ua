@@ -73,7 +73,7 @@ E~EnumStr E~Uuid
 ⍤""=E~User
 
 231
-{SelectBits!(3|3|2)}
+{SelectBits!(3|3|+.1)}
 ⍤""≍{1_1_1 0_0_1 1_1}
 
 1_1_1 0_0_1 1_1

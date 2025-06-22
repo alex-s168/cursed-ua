@@ -167,7 +167,7 @@ SelectBitsGen ← (
 # {SelectBits!(3|3|2)} 231
 # ## {[1 1 1] [0 0 1] [1 1]}
 # ```
-SelectBits! ←^ (SelectBitsGen≡◇⋕)
+SelectBits! ←^ SelectBitsGen
 
 # defines a fake un- inverse (that errors when it is called) for the given function
 #
