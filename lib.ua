@@ -152,12 +152,12 @@ Enum! ←^ (
 
 # See `SelectBits!`
 SelectBitsGen ← (
-  ⊃(⊃(⊣|↘¯1) \+⊂0.
-    $"revbit,_"
+  ⊃(⊃(⊣|⊂□"0"↘¯1) \⍚($"+__") .≡⍚$"(_)"
+    $"fill0tak_revbit"
     ⊙($"fork(_)" /$"_|_" ≡⍚˜$"tak_dro_")
     $"_ _":
   | $"unbitrevjoi,__"⧻: $"bra(_)" /$"_|_" ≡⍚$"revfil0tak_rev".)
-  $"obv(_|_)"
+  $"obv(_\n| _)"
 )
 
 # can also be un-ed
