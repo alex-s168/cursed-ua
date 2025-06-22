@@ -36,7 +36,9 @@ ParseMatchArm ← ⍣(
 # default:arr[box[str]] cases:arr[box[T]] ? arr[box[str]]
 #
 # example:
-# ˙ ParseMatchArms!$"_ => _"
+# ```uiua
+# ParseMatchArms!$"_ => _"
+# ```
 ParseMatchArms! ← (
   °□/⍚⊂ ≡⍚(≡{⊙⊙}⊙¤ ParseMatchArm)
   ⍤"only one default arm allowed"≤1⧻.⊃▽(▽¬) ≡◇≍0≡⊢.
@@ -50,40 +52,47 @@ EmitInvTry ← $"obv((_)|(_))":∩($"try(_)"⨬(°□◇⊢|°□/⍚$"_|_")≥2
 # invertible try
 #
 # the inverse of InvTry!(A|B|H) is:
-# ˙ try(unA|unB|unH)
+# ```uiua
+# try(unA|unB|unH)
+# ```
 InvTry! ←^ EmitInvTry
 
-# join arr of boxed strings with ^0
+# Join arr of boxed strings with ^0
 #
 # example:  Join!$"_, _"
 Join! ← ⍣(""◌°0|°□⊢°1|°□/⍚^0 ◌) ⧻.
 
-# code mapper for Match!
+# code generator for `Match!`
 EmitMatch ← $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop":°□⊢) ≠0⧻. ⊙Join!$"_|_" ParseMatchArms!($"(_) un(_)":)
 
 # example:
-# ˙ Match!(
-# ˙ ˙ 1 + 2 => "a"
-# ˙ | 3 => "b"
-# ˙ | . => "y")
+# ```uiua
+# Match!(
+#   1 + 2 => "a"
+# | 3 => "b"
+# | . => "y")
+# ```
 #
-# to put more complicated expression into the match arm cases, surround them with parenthesis:
-# ˙ Match!(
-# ˙ ˙ 1 + (+1 1) => "a"
-# ˙ | 3 => "b"
-# ˙ | . => "y")
-# ˙
+# To put more complicated expression into the match arm cases, surround them with parenthesis:
+# ```uiua
+# Match!(
+#   1 + (+1 1) => "a"
+# | 3 => "b"
+# | . => "y")
+# ```
 Match! ←^ EmitMatch
 
 # defines all the enum constants, EnumBin (un-able), and EnumStr (un-able)
 #
 # example:
-# ˙ Enum!(
-# ˙ ˙ Player = 4  # start counting at 4
-# ˙ | Sheep       # id 5
-# ˙ | Horse       # id 6
-# ˙ | ..Mob       # all other ids are Mobs
-# ˙ )
+# ```uiua
+# Enum!(
+#   Player = 4  # start counting at 4
+# | Sheep       # id 5
+# | Horse       # id 6
+# | ..Mob       # all other ids are Mobs
+# )
+# ```
 #
 # Currently the entry with the ".." in front of it assignes to all unassigned IDs, instead of just the following.
 # this however might be changed in the future.
@@ -95,7 +104,6 @@ Match! ←^ EmitMatch
 # If you don't assign the first element, it will start counting from zero.
 #
 # You can skip IDs by assigning elements in the middle.
-# ˙
 Enum! ←^ (
   ≡⍚(
     SplitWithIndent‼!@(@)@←
@@ -128,3 +136,27 @@ Enum! ←^ (
   ⇌{⊙⊙⊙}
   Join!$"_\n_"
 )
+
+# See `SelectBits!`
+SelectBitsGen ← (
+  ⊃(⊃(⊣|↘¯1) \+⊂0.
+    $"revbit,_"
+    ⊙($"fork(_)" /$"_|_" ≡⍚˜$"tak_dro_")
+    $"_ _":
+  | $"unbitrevjoi,__"⧻: $"bra(_)" /$"_|_" ≡⍚$"revfil0tak_rev".)
+  $"obv(_|_)"
+)
+
+# can also be un-ed
+#
+# example:
+# ```uiua
+# {SelectBits!(3|3|2)} 231
+# ## {[1 1 1] [0 0 1] [1 1]}
+# ```
+SelectBits! ←^ (SelectBitsGen≡◇⋕)
+
+# defines a fake un- inverse (that errors when it is called) for the given function
+#
+# this can be used to get the no inverse found error at runtime instead of compile time
+NoInv! ←^ $"obv(_|assert\"NoInv! inverse was called\"0 _)" ◇⊢: ⍥(⊂"0 "): ⍥(⊂"pop"):"" :°[⊙⊙] ⊢:

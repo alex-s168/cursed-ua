@@ -1,4 +1,4 @@
-~ "lib.ua" ~ Enum! Join! Match! ParseMatchArms!
+~ "lib.ua" ~ Enum! Join! Match! ParseMatchArms! SelectBits!
 
 {"1 + 2 + (3+4) => 3"
  "a + b => x"}
@@ -71,3 +71,11 @@ E~EnumStr E~Uuid
 500
 °E~EnumBin
 ⍤""=E~User
+
+231
+{SelectBits!(3|3|2)}
+⍤""≍{1_1_1 0_0_1 1_1}
+
+1_1_1 0_0_1 1_1
+°SelectBits!(3|3|2)
+⍤""≍231
