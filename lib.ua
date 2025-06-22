@@ -1,15 +1,28 @@
+# !doc
+# # cursed.ua
+# uiua code macro library
+#
+# ```uiua
+# C ~ "git: github.com/alex-s168/cursed-ua"
+# ```
+
+Args! ↚^ ⊂"⊢⊢"⋅repr
+
+# zero-initialize struct `^0`
+Z! ← °[°^0] ↯⊙0 Args!^0
+
 Indent‼ ← ⬚0\(⍤"mismatched parenthesis"≥0. ⍣(+1°^0|-1°^1|◌):)
 
 RmTail  ← ⍣(↘¯:⟜(=⊣):|◌)
 RmBegin ← ⍣(↘:⟜(=⊢):|◌)
 
-# macro args: UpIndent DownIndent SplitBy
+# macro args: UpIndent DownIndent SplitBy:ch|[]ch
 #
 # arr[box[str]] ? str
 #
 # example: SplitWithIndent‼! @[ @] @, "[1,2,3]"
 SplitWithIndent‼! ← (
-  ⊜□¬×⊃(=0Indent‼^0^1|=^2|∘)
+  ⊜□¬×⊃(=0Indent‼^0^1|≡(/+=^2)|∘)
 )
 
 # example: "a + b => x"
