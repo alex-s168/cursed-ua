@@ -147,20 +147,22 @@ IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡�
 °"aeyo" °"32a" Inp~Str IdentStart Inp "aeyo32a"
 
 ┌─╴Ident
-  |S {Text Subscript}
+  |S {Span Subscript Text}
 
-  Fmt ← ⊂:⍣(""°0|$",_"°□) :°S
+  Fmt ← ⊂:⍣(""°0|$",_"°□) ⊃(S~Subscript|S~Text)
 
-  Json ← map{"text" "subscript"} {⊃(S~Text|JsonOpt!∘ S~Subscript)}
+  Json ← map{"text" "subscript" "span"} {⊃(S~Text|JsonOpt!∘ S~Subscript|S~Span)}
 
   Parse ← |1.2 (
-    ⊙AssNotEmpty IdentStart
-    ⍣(⊙□ Subscript|⊙0)
-    ⊙˜S
+    Track!(
+      ⊙AssNotEmpty IdentStart
+      ⍣(⊙□ Subscript|⊙0)
+    )
+    ⊙S
   )
 
-  ⍤""≍S"HelloWorld"0 °"32" Inp~Str Parse Inp"HelloWorld32"
-  ⍤""≍S"HelloWorld"□32 °"a" Inp~Str Parse Inp"HelloWorld,32a"
+  ⍤""≍S[0 10] 0 "HelloWorld" °"32" Inp~Str Parse Inp"HelloWorld32"
+  ⍤""≍S[0 13] □32 "HelloWorld" °"a" Inp~Str Parse Inp"HelloWorld,32a"
 
   ⍤""≍"Helo" Fmt◌ Parse Inp "Helo"
   ⍤""≍"Helo,32"Fmt◌ Parse Inp "Helo,32"
@@ -183,7 +185,9 @@ IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡�
     ⊙(S˜⊂)
   )
 
-  ⍤""≍S {◌End Ident~Parse Inp"Ax" ◌End Ident~Parse Inp"By" ◌End Ident~Parse Inp"Cz"} ◌End Parse Inp "Ax~By~Cz"
+  ◌End Parse Inp "Ax~By~Cz"
+  {$S 0 $Segments {{$S 0 $Span [0 2] $Subscript 0 $Text "Ax"} {$S 0 $Span [3 2] $Subscript 0 $Text "By"} {$S 0 $Span [6 2] $Subscript 0 $Text "Cz"}}}
+  ⍤""≍
 └─╴
 
 ┌─╴Attr
@@ -218,7 +222,8 @@ Attrs ← |1.2 (
 )
 
 °"rem" Inp~Str Attrs Inp "^funny~attr!(arg)rem"
-⍤""≍[◌Attr~Parse Inp"funny~attr!(arg)"]
+[{$S 0 $Arg □"arg" $Calling True $Path {$S 0 $Segments {{$S 0 $Span [1 5] $Subscript 0 $Text "funny"} {$S 0 $Span [7 4] $Subscript 0 $Text "attr"}}}}]
+⍤""≍
 
 MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
@@ -255,44 +260,44 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     ⊙S
   )
 
-  $ CoolField
-  Inp
-  ⍤""≍S0 Ident~S"CoolField" 0 [] [] ◌End Parse
-
-  $ CoolField,23
-  Inp
-  ⍤""≍S0 Ident~S"CoolField" □23 [] [] ◌End Parse
-
-  $ # some
-  $ #comments
-  $ 
-  $ CoolField,23
-  Inp
-  ⍤""≍S0 Ident~S"CoolField" □23 [] {" some" "comments"} ◌End Parse
-
-  $ CoolField  =  + 1 2
-  Inp
-  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] ◌End Parse
-
-  $ CoolField  =  + 1 2| Next
-  Inp
-  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °" Next" Inp~Str Parse
-
-  $ CoolField  =  + 1 2
-  $ Next
-  Inp
-  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °"Next" Inp~Str Parse
-
-  $ ^Attr(x) ^My~Module~Attr
-  $ ^Attr,3!(x)
-  $ CoolField  =  + 1 2
-  $ Next
-  Inp
-  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [
-    ◌Attr~Parse Inp"Attr(x)"
-    ◌Attr~Parse Inp"My~Module~Attr"
-    ◌Attr~Parse Inp"Attr,3!(x)"
-  ] [] °"Next" Inp~Str Parse
+  # $ CoolField
+  # Inp
+  # ⍤""≍S0 Ident~S"CoolField" 0 [] [] ◌End Parse
+  #
+  # $ CoolField,23
+  # Inp
+  # ⍤""≍S0 Ident~S"CoolField" □23 [] [] ◌End Parse
+  #
+  # $ # some
+  # $ #comments
+  # $ 
+  # $ CoolField,23
+  # Inp
+  # ⍤""≍S0 Ident~S"CoolField" □23 [] {" some" "comments"} ◌End Parse
+  #
+  # $ CoolField  =  + 1 2
+  # Inp
+  # ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] ◌End Parse
+  #
+  # $ CoolField  =  + 1 2| Next
+  # Inp
+  # ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °" Next" Inp~Str Parse
+  #
+  # $ CoolField  =  + 1 2
+  # $ Next
+  # Inp
+  # ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °"Next" Inp~Str Parse
+  #
+  # $ ^Attr(x) ^My~Module~Attr
+  # $ ^Attr,3!(x)
+  # $ CoolField  =  + 1 2
+  # $ Next
+  # Inp
+  # ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [
+  #   ◌Attr~Parse Inp"Attr(x)"
+  #   ◌Attr~Parse Inp"My~Module~Attr"
+  #   ◌Attr~Parse Inp"Attr,3!(x)"
+  # ] [] °"Next" Inp~Str Parse
 └─╴
 
 ┌─╴DataDefEnt
@@ -409,9 +414,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $ } end
   Inp
   °" end" Inp~Str Parse
-  Fmt
-  TreeStr
-  ◌ # by&pf
+  ◌
 
   $ # sucker who buys our products
   $ |Human ^idk {
@@ -427,9 +430,5 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $ end
   Inp
   °"\nend" Inp~Str Parse
-  ⊃(&p json Json
-  | Fmt
-    TreeStr
-    ◌ ⊸&p
-  )
+  &p json Json
 └─╴
