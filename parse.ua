@@ -95,7 +95,7 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
 
   Json ← map{"text" "subscript"} {⊃(S~Text|JsonOpt!∘ S~Subscript)}
 
-  Parse ← (
+  Parse ← |1.2 (
     ⊙⟜(°1≠0⧻) IdentStart
     ⍣(⊙□ Subscript|⊙0)
     ⊙˜S
@@ -115,55 +115,50 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
 
   Json ← map{"segments"} {≡⍚Ident~Json S~Segments}
 
-  Parse ← (
-    Ident~Parse
+  Parse ← |1.2 (
+    ⊙□Ident~Parse
     While!(
       ⊙◌Char!(=@~)
       White
       Ident~Parse
     )
-    ⊙S
+    ⊙(S˜⊂)
   )
 └─╴
 
 ┌─╴Attr
-  |S {Arg Call Path}
+  |S {Arg Calling Path}
 
-  Json ← map{"path" "calling" "arg"} {⊃(Path~Json S~Path|⨬(False|True) S~Call|JsonOpt!∘ S~Arg)}
+  Json ← map{"path" "calling" "arg"} {⊃(Path~Json S~Path|⨬(False|True) S~Calling|JsonOpt!∘ S~Arg)}
 
   # too lazy to write fmt func
   Fmt ← json Json
 
-  Parse ← (
+  # Pa~Th  or  Pa~Th(arg)  or  Pa~Th!  or  Pa~Th!(arg)
+  Parse ← |1.2 (
     Path~Parse
-    ⍣(⊙True⊙◌ Char!(=@!)|⊙False)
-    ⍣(°@(⊸⊢
-      IndentGroup‼@(@)
-      ⊙□
+    ⍣(|1.2 ⊙True⊙◌ Char!(=@!)|⊙False)
+    ⍣(|1.2 °@(⊸⊢
+           IndentGroup‼@(@)
+           ⊙□
     | ⊙0)
     ⊙S
   )
 
-  ⍤""≍S0 False "A~Bx" °"69" Parse"A~Bx69"
-  ⍤""≍S□"cool arg" False "A~Bx" °"69" Parse"A~Bx(cool args)69"
+  ⍤""≍S0 False◌Path~Parse"A~Bx" °"69" Parse"A~Bx69"
+  ⍤""≍S□"cool arg" False◌Path~Parse"A~Bx" °"69" Parse"A~Bx(cool arg)69"
 └─╴
 
 # outputs list of Attr
 # parses:  ^hello  ^hello(arg) ^hello!  ^hello!(...)
-Attrs ← (
-  °@[⊸⊢
-  IndentGroup‼@[@]
-  ⊙(≡◇Attr~Parse C~SplitWithIndent‼!@( @) ",|")
+Attrs ← |1.2 (
+  ⊙◌ Char!(=@^)
+  Attr~Parse
+  ⊙[∘]
 )
 
-°"rem"Attrs "[Attr1|Attr2(xyz)|Attr3]rem"
-⍤""≍[
-  Attr~S "Attr1" 0
-  Attr~S "Attr2" □"xyz"
-  Attr~S "Attr3" 0
-]
-
-⍣(⍤""0 ◌◌ Attrs|◌) "rem"
+°"rem"Attrs "^funny~attr!(arg)rem"
+⍤""≍[◌Attr~Parse"funny~attr!(arg)"]
 
 MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
@@ -222,14 +217,14 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $ Next
   ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °"Next" Parse
 
-  $ [Attr4(x)|Attr5]
-  $ [Attr3(x)]
+  $ ^Attr(x) ^My~Module~Attr
+  $ ^Attr,3!(x)
   $ CoolField  =  + 1 2
   $ Next
   ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [
-    Attr~S "Attr4" □"x"
-    Attr~S "Attr5" 0
-    Attr~S "Attr3" □"x"
+    ◌Attr~Parse "Attr(x)"
+    ◌Attr~Parse "My~Module~Attr"
+    ◌Attr~Parse "Attr,3!(x)"
   ] [] °"Next" Parse
 └─╴
 
@@ -267,10 +262,10 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     ⊙S
   )
 
-  $ User [funny] {
+  $ User ^funny! {
   $   # looong comment
   $   # more comment
-  $   [attr(x),attr2]
+  $   ^attr(x) ^pa~th~attr
   $   Name = 3|Pass
   $   Email
   $ } end
@@ -336,10 +331,10 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   Parse ← ⍣(ParseStruct|ParseVariant)
 
   $ # sucker who buys our products
-  $ ~ User [funny] {
+  $ ~ User ^funny! {
   $   # looong comment
   $   # more comment
-  $   [attr(x),attr2]
+  $   ^attr(x) ^attr,2
   $   Name = 3|Pass
   $   Email
   $ } end
@@ -349,16 +344,16 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   ◌ # by&pf
 
   $ # sucker who buys our products
-  $ |Human [idk] {
+  $ |Human ^idk {
   $   # looong comment
   $   # more comment
-  $   [attr(x),attr2]
+  $   ^attr!(x) ^attr,2
   $   Name = 3|Pass
   $   Email
   $ }
   $ 
   $ # ant
-  $ |Ant [eee] {Weight| Strength = inf}
+  $ |Ant ^eee {Weight| Strength = inf}
   $ end
   °"\nend" Parse
   ⊃(&p json Json
