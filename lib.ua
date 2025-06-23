@@ -173,3 +173,34 @@ SelectBits! ←^ SelectBitsGen
 #
 # this can be used to get the no inverse found error at runtime instead of compile time
 NoInv! ←^ $"obv(_|assert\"NoInv! inverse was called\"0 _)" ◇⊢: ⍥(⊂"0 "): ⍥(⊂"pop"):"" :°[⊙⊙] ⊢:
+
+┌─╴TryRes
+  |Ok {Val}
+  |Err {Msg}
+
+  Unwrap ← ⍣(
+    °Ok
+  | [] ⍤$"Tried:\n_":0 ⊙◌ °Err
+  )
+└─╴
+
+Try! ← ⍣(TryRes~Ok^0|⋅(TryRes~Err $"- _"))
+
+CascTryImpl‼ ← ⍣(
+  ⍩(TryRes~Ok⊙◌) °TryRes~Ok
+| °TryRes~Err
+  # ErrMsg Orig
+  :⊙Try!^1
+  # AddErrMsg ErrMsg 
+  ⍣(⍩(TryRes~Ok⊙◌) °TryRes~Ok
+  | °TryRes~Err
+    ⍩(
+      # NewErrMsg OlderrMsg
+      $"_\n_"
+      TryRes~Err
+    )
+  )
+) ⊸^0
+
+# cascading try, that returns the errors from all cases when it failed
+CascTry! ←^ $"TryRes~Unwrap _" /⍚$"CascTryImpl‼((_)|(_))" ⍜⊡₀⍚$"Try!(_)"

@@ -1,5 +1,29 @@
 C ~ "lib.ua"
 
+┌─╴Inp
+  ~ {Pos ← 0|Str}
+
+  # Inp Head ? Amount Inp
+  Split ← ˜(⍜Inp~Pos+ ⊙: ⊸⍜Inp~Str˜⊃↘↙)
+
+  # Inp Head Span ? Amount Inp
+  SplitSpan ← ⊙(:⊂⟜-:Inp~Pos:) ⊸:⊃⋅Inp~Pos Split
+
+  # Inp ? Inp
+  MoveToEnd ← °⊸Inp~Pos: Inp"" +⊃(Inp~Pos|⧻Inp~Str)
+
+  ⍤""≍°⊸Pos3 Inp"" MoveToEnd Inp "Axy"
+
+  Inp~Split2 Inp "Hello "
+  ⍤""≍°⊸Pos2 Inp "llo "
+  ⍤""≍ "He"
+
+  Inp~SplitSpan2 °⊸Pos5 Inp "Hello "
+  ⍤""≍°⊸Pos7 Inp "llo "
+  ⍤""≍ "He"
+  ⍤""≍[5 2]
+└─╴
+
 # by @#7_11_14_17_19_22_23_28_29_31_33
 TreeStr ← (
   ⍥(∩/◇⊂⍚(⨬⟜(+₁↯⧻)⊓□∘=1⊸type))∞⟜≡⋅0 # Flat and depth map
@@ -8,9 +32,9 @@ TreeStr ← (
   /$"_\n_"                          # Join with lines
 )
 
-AssNotEmpty ← ⟜(°1≠0⧻)
+AssNotEmpty ← ⟜(⍤"Array was empty"≠0⧻)
 
-AssHead! ← °^0⊸⊢
+AssHead! ← °^0⊸(⊢Inp~Str)
 
 FmtOpt! ← ⍣("None"°0|$"Some(_)"^0 °□)
 
@@ -19,78 +43,108 @@ JsonOpt! ← ⍣(NaN°0|^0°□)
 # as long as ^0 with |1.2 parses, into boxed array
 While! ← :◌⍢(⍣(1⊂⊙(□:^0)|0) ◌)∘1[]
 
+# repeats ^0 |1.1 until fails
+Rep! ← ⊙◌ While!(⊙0 ^0)
+
 # returns string as value that is before X|1.1 parses
 Until! ← (
   1""
   ⍢(
     ◌
-    # Arr Str
+    # Arr Inp
     ⍣(0:⊙^0
-    | 1 ⊂ ⊙⊃⊢(↘1)
+    | 1 ⊂ ⊙(:Inp~Split1)
     )
   )∘
   ◌
   # RemStr Val
 )
 
-End ← ""°0⧻
+End ← ⊸(°0⧻Inp~Str)
 
-Spaces ← ↘⍣(⊢|0)⊚⊸≠@ 
-White  ← ↘⍣(⊢|0)⊚⊸≡(¬/+=" \n\r")
-LineBr ← ⍣(°$"\r\n_"|°$"\n_")
+# Inp ? Inp
+Just! ← |1 ⍣(⊙(⍤""≍^0) Inp~Split(⧻^0)|[]⍤:0$"[_:_] Expected _" :⧻^0 :repr ^0 Inp~Pos ⊙◌)
 
-°"lol"LineBr "\nlol"
-°"lol"LineBr "\r\nlol"
+# Inp Span ... ? Inp ...
+Track! ← (
+  Inp~Pos.
+  ⊙^0
+  # OldPos NewInp ...
+  ◡⋅Inp~Pos
+  # NewPos OldPos NewInp ...
+  ⊸(-:)
+  # Len OldPos NewInp ...
+  ⊂:
+  # Span NewInp ...
+  :
+)
 
-°"aa aa"°"bbb b"Until!LineBr "aa aa\nbbb b"
+Track!(Inp~Split2) °⊸Inp~Pos5 Inp "Hello "
+⍤""≍°⊸Inp~Pos7 Inp "llo "
+⍤""≍[5 2]
+⍤""≍ "He"
+
+Any! ←^ $"C~CascTry!(_)" /⍚$"_|_" ≡⍚$"(_)"
+
+White  ← |1 Rep!Any!(Just!" "|Just!"\n"|Just!"\r")
+LineBr ← |1 Any!(Just!"\r\n"|Just!"\n")
+
+⍤""≍"lol"Inp~Str LineBr Inp"\nlol"
+⍤""≍"lol"Inp~Str LineBr Inp"\r\nlol"
+
+°"aa aa"°"bbb b"Inp~Str Until!LineBr Inp"aa aa\nbbb b"
 
 # Rem Val ? Str
 Comment ← (
-  ⨬∘↘₁=@ ⊸⊢ ↘1 °@#⊸⊢
-  ⊙◌⍣(⊢⊙∘|⋅⧻)⊚+⊃(=@\n|=@\r)..
-  ⊃(↘|↙)
+  Just!"#"
+  Until!Any!(End|LineBr)
 )
 
 $ # really coo
 $ l
-°"really coo" °"\nl"Comment
+Inp
+°" really coo" °"l"Inp~Str Comment
 
 $ # really ocol
-°"really ocol" °""Comment
+Inp
+°" really ocol" °""Inp~Str Comment
 
 $ # multi
 $ # line
 $ # comment
 $ notcomment
-°{"multi" "line" "comment"}°"notcomment"While!(White Comment White)
+Inp
+°{" multi" " line" " comment"}°"notcomment" Inp~Str While!(White Comment White)
 
-IndentGroup‼ ← ⍣(⊃(↘+1)(↘1↙)⊢|[]◌) ⊚=0C~Indent‼^0^1 .
+# Inp InnerStr ? Inp
+IndentGroup‼ ← (
+  ⊙◌ ⊚=0C~Indent‼^0^1 .Inp~Str.
+  ⍣(⊙(↘1↘¯1) ⍩(Inp~Split +1) ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌)
+)
 
-°"hel[l]o "°"world"IndentGroup‼@[@] "[hel[l]o ]world"
-°""°"world"IndentGroup‼@[@] "[]world"
-°"a"°""IndentGroup‼@[@] "[a]"
+°"hel[l]o "°"world" Inp~Str IndentGroup‼@[@] Inp "[hel[l]o ]world"
+°""°"world" Inp~Str IndentGroup‼@[@] Inp "[]world"
+°"a"°"" Inp~Str IndentGroup‼@[@] Inp"[a]"
 
 # seperator after a field with default value
-StructDefaultFieldSep ← ⍣(LineBr|°$"|_")
-StructFieldSep        ← ⍣(StructDefaultFieldSep|°$" _")
+StructDefaultFieldSep ← Any!(LineBr|Just!"|")
+StructFieldSep        ← Any!(StructDefaultFieldSep|Just!" ")
 
-AssignArrow ← ⍣(°$"=_"|°$"←_")
+AssignArrow ← |1 Any!(Just!"="|Just!"←")
 
-Char! ← ⊃(↘1|°1/×^0.⊢)
-
-Digit ← Char![⊃(≥@0|≤@9)]
-°@4 °"hey" Digit "4hey"
+Digit ← |1.2 ⊙⊸(⍤"Expected digit"×⊃(≥@0|≤@9)) ⊙⊢ Inp~Split1
+°@4 °"hey" Inp~Str Digit Inp "4hey"
 
 DigitNum ← ⊙(⋕≡°□) While!Digit
-°42 °"hey" DigitNum "42hey"
+°42 °"hey" Inp~Str DigitNum Inp "42hey"
 
-Subscript ← DigitNum ⍣(°$"\_\__"|°$",_")
-°123 °"hey" Subscript ",123hey"
-°123 °"hey" Subscript "__123hey"
+Subscript ← DigitNum Any!(Just!"__"|Just!",")
+°123 °"hey" Inp~Str Subscript Inp ",123hey"
+°123 °"hey" Inp~Str Subscript Inp "__123hey"
 
-IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
-°"a" °"32a" IdentStart "a32a"
-°"aeyo" °"32a" IdentStart "aeyo32a"
+IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡₀(⧻regex"\\p{Letter}").Inp~Str.
+°"a" °"32a" Inp~Str IdentStart Inp "a32a"
+°"aeyo" °"32a" Inp~Str IdentStart Inp "aeyo32a"
 
 ┌─╴Ident
   |S {Text Subscript}
@@ -105,11 +159,11 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
     ⊙˜S
   )
 
-  ⍤""≍S"HelloWorld"0 °"32"Parse"HelloWorld32"
-  ⍤""≍S"HelloWorld"□32 °"a"Parse"HelloWorld,32a"
+  ⍤""≍S"HelloWorld"0 °"32" Inp~Str Parse Inp"HelloWorld32"
+  ⍤""≍S"HelloWorld"□32 °"a" Inp~Str Parse Inp"HelloWorld,32a"
 
-  ⍤""≍"Helo" Fmt◌ Parse "Helo"
-  ⍤""≍"Helo,32"Fmt◌ Parse "Helo,32"
+  ⍤""≍"Helo" Fmt◌ Parse Inp "Helo"
+  ⍤""≍"Helo,32"Fmt◌ Parse Inp "Helo,32"
 └─╴
 
 ┌─╴Path
@@ -122,12 +176,14 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
   Parse ← |1.2 (
     ⊙□Ident~Parse
     While!(
-      ⊙◌Char!(=@~)
+      Just!"~"
       White
       Ident~Parse
     )
     ⊙(S˜⊂)
   )
+
+  ⍤""≍S {◌End Ident~Parse Inp"Ax" ◌End Ident~Parse Inp"By" ◌End Ident~Parse Inp"Cz"} ◌End Parse Inp "Ax~By~Cz"
 └─╴
 
 ┌─╴Attr
@@ -141,7 +197,7 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
   # Pa~Th  or  Pa~Th(arg)  or  Pa~Th!  or  Pa~Th!(arg)
   Parse ← |1.2 (
     Path~Parse
-    ⍣(|1.2 ⊙True⊙◌ Char!(=@!)|⊙False)
+    ⍣(|1.2 ⊙True Just!"!"|⊙False)
     ⍣(|1.2 AssHead!@(
            IndentGroup‼@(@)
            ⊙□
@@ -149,20 +205,20 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
     ⊙S
   )
 
-  ⍤""≍S0 False◌Path~Parse"A~Bx" °"69" Parse"A~Bx69"
-  ⍤""≍S□"cool arg" False◌Path~Parse"A~Bx" °"69" Parse"A~Bx(cool arg)69"
+  ⍤""≍S0 False◌End Path~Parse Inp"A~Bx" °"69" Inp~Str Parse Inp"A~Bx69"
+  ⍤""≍S□"cool arg" False◌End Path~Parse Inp"A~Bx" °"69" Inp~Str Parse Inp"A~Bx(cool arg)69"
 └─╴
 
 # outputs list of Attr
 # parses:  ^hello  ^hello(arg) ^hello!  ^hello!(...)
 Attrs ← |1.2 (
-  ⊙◌ Char!(=@^)
+  Just!"^"
   Attr~Parse
   ⊙[∘]
 )
 
-°"rem"Attrs "^funny~attr!(arg)rem"
-⍤""≍[◌Attr~Parse"funny~attr!(arg)"]
+°"rem" Inp~Str Attrs Inp "^funny~attr!(arg)rem"
+⍤""≍[◌Attr~Parse Inp"funny~attr!(arg)"]
 
 MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
@@ -192,44 +248,51 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     Ident~Parse
     ⍣(White
       AssignArrow
-      Until!⍣(StructDefaultFieldSep|End)
+      Until!Any!(StructDefaultFieldSep|End)
       ⊙□
-    | ⊙0 ⍣(StructFieldSep|End)
+    | ⊙0 Any!(StructFieldSep|End)
     )
     ⊙S
   )
 
   $ CoolField
+  Inp
   ⍤""≍S0 Ident~S"CoolField" 0 [] [] ◌End Parse
 
   $ CoolField,23
+  Inp
   ⍤""≍S0 Ident~S"CoolField" □23 [] [] ◌End Parse
 
   $ # some
   $ #comments
   $ 
   $ CoolField,23
-  ⍤""≍S0 Ident~S"CoolField" □23 [] {"some" "comments"} ◌End Parse
+  Inp
+  ⍤""≍S0 Ident~S"CoolField" □23 [] {" some" "comments"} ◌End Parse
 
   $ CoolField  =  + 1 2
+  Inp
   ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] ◌End Parse
 
   $ CoolField  =  + 1 2| Next
-  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °" Next" Parse
+  Inp
+  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °" Next" Inp~Str Parse
 
   $ CoolField  =  + 1 2
   $ Next
-  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °"Next" Parse
+  Inp
+  ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °"Next" Inp~Str Parse
 
   $ ^Attr(x) ^My~Module~Attr
   $ ^Attr,3!(x)
   $ CoolField  =  + 1 2
   $ Next
+  Inp
   ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [
-    ◌Attr~Parse "Attr(x)"
-    ◌Attr~Parse "My~Module~Attr"
-    ◌Attr~Parse "Attr,3!(x)"
-  ] [] °"Next" Parse
+    ◌Attr~Parse Inp"Attr(x)"
+    ◌Attr~Parse Inp"My~Module~Attr"
+    ◌Attr~Parse Inp"Attr,3!(x)"
+  ] [] °"Next" Inp~Str Parse
 └─╴
 
 ┌─╴DataDefEnt
@@ -259,6 +322,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     | ⊙[]
     )
     ⊙(
+      Inp
       While!(White StructField~Parse White)
       ⊙◌ While!(White Comment White)
       ◌End
@@ -273,7 +337,8 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $   Name = 3|Pass
   $   Email
   $ } end
-  °" end" Parse
+  Inp
+  °" end" Inp~Str Parse
   Fmt
   TreeStr
   ◌ # by&pf
@@ -312,7 +377,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   ParseStruct ↚ (
     While!(White Comment White)
     White
-    ⊙◌Char!(=@~)
+    Just!"~"
     White
     DataDefEnt~Parse
     ⊙(Struct Item~S)
@@ -321,7 +386,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   ParseVariantEnt ↚ (
     While!(White Comment White)
     White
-    ⊙◌Char!(=@|)
+    Just!"|"
     White
     DataDefEnt~Parse
     ⊙Item~S
@@ -342,7 +407,8 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $   Name = 3|Pass
   $   Email
   $ } end
-  °" end" Parse
+  Inp
+  °" end" Inp~Str Parse
   Fmt
   TreeStr
   ◌ # by&pf
@@ -359,7 +425,8 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $ # ant
   $ |Ant ^eee {Weight| Strength = inf}
   $ end
-  °"\nend" Parse
+  Inp
+  °"\nend" Inp~Str Parse
   ⊃(&p json Json
   | Fmt
     TreeStr
