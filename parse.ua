@@ -84,8 +84,6 @@ Subscript ← DigitNum ⍣(°$"\_\__"|°$",_")
 °123 °"hey" Subscript ",123hey"
 °123 °"hey" Subscript "__123hey"
 
-# TODO: real ident probably allows more
-# IdentChar ← Char!(+⊃(×⊃(≥@A|≤@Z)|×⊃(≥@a|≤@z)))
 IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
 °"a" °"32a" IdentStart "a32a"
 °"aeyo" °"32a" IdentStart "aeyo32a"
@@ -110,28 +108,52 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
   ⍤""≍"Helo,32"Fmt◌ Parse "Helo,32"
 └─╴
 
+┌─╴Path
+  |S {Segments}
+
+  Fmt ← ≡⍚Ident~Fmt°S
+
+  Json ← map{"segments"} {≡⍚Ident~Json S~Segments}
+
+  Parse ← (
+    Ident~Parse
+    While!(
+      ⊙◌Char!(=@~)
+      White
+      Ident~Parse
+    )
+    ⊙S
+  )
+└─╴
+
 ┌─╴Attr
-  |S {Path Arg}
+  |S {Arg Call Path}
 
-  Fmt ← ⊂:⍣(""°0|$"(_)"°□) :°S
+  Json ← map{"path" "calling" "arg"} {⊃(Path~Json S~Path|⨬(False|True) S~Call|JsonOpt!∘ S~Arg)}
 
-  Json ← map{"path" "arg"} {⊃(S~Path|JsonOpt!∘ S~Arg)}
+  # too lazy to write fmt func
+  Fmt ← json Json
 
-  From ← S⍣(⊙□°$"_(_)"|⊙0)
+  Parse ← (
+    Path~Parse
+    ⍣(⊙True⊙◌ Char!(=@!)|⊙False)
+    ⍣(°@(⊸⊢
+      IndentGroup‼@(@)
+      ⊙□
+    | ⊙0)
+    ⊙S
+  )
 
-  ⍤""≍S"A~Bx"0 From"A~Bx"
-  ⍤""≍S"A~Bx" □"cool args" From"A~Bx(cool args)"
-
-  ⍤""≍ ⊸(Fmt From) "A~Bx"
-  ⍤""≍ ⊸(Fmt From) "A~Bx(cool args)"
+  ⍤""≍S0 False "A~Bx" °"69" Parse"A~Bx69"
+  ⍤""≍S□"cool arg" False "A~Bx" °"69" Parse"A~Bx(cool args)69"
 └─╴
 
 # outputs list of Attr
-# parses:  [hello]   [hello(...)]   [a(x),b(y)]   [a(x)|b(y)]
+# parses:  ^hello  ^hello(arg) ^hello!  ^hello!(...)
 Attrs ← (
   °@[⊸⊢
   IndentGroup‼@[@]
-  ⊙(≡◇Attr~From C~SplitWithIndent‼!@( @) ",|")
+  ⊙(≡◇Attr~Parse C~SplitWithIndent‼!@( @) ",|")
 )
 
 °"rem"Attrs "[Attr1|Attr2(xyz)|Attr3]rem"
