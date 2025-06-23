@@ -76,7 +76,7 @@ InvTry! ←^ EmitInvTry
 Join! ← ⍣(""◌°0|°□⊢°1|°□/⍚^0 ◌) ⧻.
 
 # code generator for `Match!`
-EmitMatch ← $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop":°□⊢) ≠0⧻. ⊙Join!$"_|_" ParseMatchArms!($"(_) un(_)":)
+EmitMatch ← $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop":°□⊢) ≠0⧻. ⊙Join!$"_|_" ParseMatchArms!($"case(_) un(_)":)
 
 # example:
 # ```uiua
