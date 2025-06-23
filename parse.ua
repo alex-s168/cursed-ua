@@ -8,6 +8,10 @@ TreeStr ← (
   /$"_\n_"                          # Join with lines
 )
 
+AssNotEmpty ← ⟜(°1≠0⧻)
+
+AssHead! ← °^0⊸⊢
+
 FmtOpt! ← ⍣("None"°0|$"Some(_)"^0 °□)
 
 JsonOpt! ← ⍣(NaN°0|^0°□)
@@ -96,7 +100,7 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
   Json ← map{"text" "subscript"} {⊃(S~Text|JsonOpt!∘ S~Subscript)}
 
   Parse ← |1.2 (
-    ⊙⟜(°1≠0⧻) IdentStart
+    ⊙AssNotEmpty IdentStart
     ⍣(⊙□ Subscript|⊙0)
     ⊙˜S
   )
@@ -138,7 +142,7 @@ IdentStart ← ⍣(⊃↘↙⊢|[]◌) ⊚¬≡₀(⧻regex"\\p{Letter}").
   Parse ← |1.2 (
     Path~Parse
     ⍣(|1.2 ⊙True⊙◌ Char!(=@!)|⊙False)
-    ⍣(|1.2 °@(⊸⊢
+    ⍣(|1.2 AssHead!@(
            IndentGroup‼@(@)
            ⊙□
     | ⊙0)
@@ -250,8 +254,8 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     ⍣(⊙□Ident~Parse|⊙0)
     White
     MultiAttrs
-    ⍣(⍩IndentGroup‼@[@] °@[⊸⊢
-    | ⍩IndentGroup‼@{@} °@{⊸⊢
+    ⍣(⍩IndentGroup‼@[@] AssHead!@[
+    | ⍩IndentGroup‼@{@} AssHead!@{
     | ⊙[]
     )
     ⊙(
