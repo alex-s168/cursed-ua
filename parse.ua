@@ -139,7 +139,34 @@ IndentGroup‼ ← (
 StructDefaultFieldSep ← |1 Any!(LineBr|Just!"|")
 StructFieldSep        ← |1 Any!(StructDefaultFieldSep|Just!" ")
 
-AssignArrow ← |1 Any!(Just!"="|Just!"←")
+┌─╴AssignSep
+  |S {Span Formatted Private}
+
+  Json ← (
+    {⊃(S~Span|⨬(False|True) S~Formatted|⨬(False|True) S~Private)}
+    map{"span" "formatted" "private"}
+  )
+
+  Parse ← |1.2 (
+    Track!(|1.2
+      Any!(
+        ⊂:□[0 1]□ Just!"=~"
+      | ⊂:□[0 1]□ Just!"←~"
+      | ⊂:□[0 0]□ Just!"="
+      | ⊂:□[1 0]□ Just!"←"
+      | ⊂:□[1 1]□ Just!"↚"
+      )
+      °{⊙⊙}
+    )
+    ⊙(S⊙°[⊙⊙])
+  )
+
+  ⍤""≍ S[0 1] 0 0 ◌End Parse Inp"="
+  ⍤""≍ S[0 1] 1 0 ◌End Parse Inp"←"
+  ⍤""≍ S[0 2] 0 1 ◌End Parse Inp"=~"
+  ⍤""≍ S[0 2] 0 1 ◌End Parse Inp"←~"
+  ⍤""≍ S[0 1] 1 1 ◌End Parse Inp"↚"
+└─╴
 
 Digit ← |1.2 ⊙⊸(⍤"Expected digit"×⊃(≥@0|≤@9)) ⊙⊢ Inp~Split1
 °@4 °"hey" Inp~Str Digit Inp "4hey"
@@ -241,19 +268,28 @@ Attrs ← |1.2 (
 
 MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
+┌─╴Assign
+  |S {Value Sep}
+
+  Json ← (
+    {⊃(S~Value|AssignSep~Json S~Sep)}
+    {"value" "seperator"}
+    map
+  )
+└─╴
+
 ┌─╴StructField
   |S {Span Default Name Attrs Comments}
 
   Fmt ← {"Field" {⊃(
         $"Name: \"_\"" Ident~Fmt S~Name
-      | $"Default: _" FmtOpt!$"\"_\"" S~Default
       | "Comments" {S~Comments}
       | "Attrs" ≡(□Attr~Fmt) S~Attrs
       )}}
 
   Json ← (
     {⊃(Ident~Json S~Name
-      | JsonOpt!∘ S~Default
+      | JsonOpt!Assign~Json S~Default
       | ≡(□Attr~Json) S~Attrs
       | S~Comments
       | S~Span
@@ -268,9 +304,9 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
       MultiAttrs
       Ident~Parse
       ⍣(White
-        AssignArrow
+        AssignSep~Parse
         Until!Any!(StructDefaultFieldSep|End)
-        ⊙□
+        ⊙(□Assign~S)
       | ⊙0 Any!(StructFieldSep|End)
       )
     )
