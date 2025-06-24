@@ -489,3 +489,25 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   °"\nend" Inp~Str Parse
   &p json Json
 └─╴
+
+┌─╴Exclamations
+  |S {Span Amount NumUnformatted}
+
+  Formatted ← <2 S~NumUnformatted
+
+  ParseChar ↚ |1.2 ⍣(⊙[1 1]Just!"!"|⊙[2 0]Just!"‼")
+
+  Parse ← |1.2 (
+    Track!(
+      While!ParseChar
+      ⊙(∩/+≡⊃⊢⊣≡°□)
+    )
+    ⊙S
+  )
+
+  ⊃(°1S~Amount|°1Formatted) ◌End Parse Inp "!"
+  ⊃(°2S~Amount|°0Formatted) ◌End Parse Inp "!!"
+  ⊃(°3S~Amount|°0Formatted) ◌End Parse Inp "!!!"
+  ⊃(°2S~Amount|°1Formatted) ◌End Parse Inp "‼"
+  ⊃(°3S~Amount|°1Formatted) ◌End Parse Inp "‼!"
+└─╴
