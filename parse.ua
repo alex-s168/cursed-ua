@@ -103,27 +103,39 @@ LineBr ← |1 Any!(Just!"\r\n"|Just!"\n")
 
 °"aa aa"°"bbb b"Inp~Str Until!LineBr Inp"aa aa\nbbb b"
 
-# Rem Val ? Str
-Comment ← (
-  Just!"#"
-  Until!Any!(End|LineBr)
-)
+┌─╴Comment
+  |S {Span Value}
+
+  Json ← (
+    {⊃(S~Span|S~Value)}
+    {"span" "val"}
+    map
+  )
+
+  Parse ← |1.2 (
+    Track!(
+      Just!"#"
+      Until!Any!(End|LineBr)
+    )
+    ⊙S
+  )
+└─╴
 
 $ # really coo
 $ l
 Inp
-°" really coo" °"l"Inp~Str Comment
+°" really coo" Comment~S~Value °"l"Inp~Str Comment~Parse
 
 $ # really ocol
 Inp
-°" really ocol" °""Inp~Str Comment
+°" really ocol" Comment~S~Value °""Inp~Str Comment~Parse
 
 $ # multi
 $ # line
 $ # comment
 $ notcomment
 Inp
-°{" multi" " line" " comment"}°"notcomment" Inp~Str While!(White Comment White)
+°{" multi" " line" " comment"}°"notcomment" Inp~Str While!(White⊙Comment~S~Value Comment~Parse White)
 
 # Inp InnerStr ? Inp
 IndentGroup‼ ← (
@@ -283,7 +295,6 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   Fmt ← {"Field" {⊃(
         $"Name: \"_\"" Ident~Fmt S~Name
-      | "Comments" {S~Comments}
       | "Attrs" ≡(□Attr~Fmt) S~Attrs
       )}}
 
@@ -291,7 +302,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     {⊃(Ident~Json S~Name
       | JsonOpt!Assign~Json S~Default
       | ≡(□Attr~Json) S~Attrs
-      | S~Comments
+      | ≡⍚Comment~Json S~Comments
       | S~Span
       )}
     {"name" "default" "attrs" "comments" "span"}
@@ -300,7 +311,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   Parse ← |1.2 Label‼"Struct Field"(
     Track!(
-      While!(White Comment White)
+      While!(White Comment~Parse White)
       MultiAttrs
       Ident~Parse
       ⍣(White
@@ -382,7 +393,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     ⊙(
       Inp
       While!(White StructField~Parse White)
-      ⊙◌ While!(White Comment White)
+      ⊙◌ While!(White Comment~Parse White)
       ◌End
     )
     ⊙S
@@ -407,11 +418,14 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     |S {Span Ent Comments}
 
     Fmt ← {"Item" ⊃(
-        {"Comments" S~Comments}
       | DataDefEnt~Fmt S~Ent
       )}
 
-    Json ← map{"ent" "comments" "span"} {⊃(DataDefEnt~Json S~Ent|S~Comments|S~Span)}
+    Json ← (
+      {⊃(DataDefEnt~Json S~Ent|≡⍚Comment~Json S~Comments|S~Span)}
+      {"ent" "comments" "span"}
+      map
+    )
   └─╴
 
   |Struct {Item}
@@ -434,7 +448,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   ParseStruct ↚ (
     Track!(
-      While!(White Comment White)
+      While!(White Comment~Parse White)
       White
       Just!"~"
       White
@@ -445,7 +459,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   ParseVariantEnt ↚ (
     Track!(
-      While!(White Comment White)
+      While!(White Comment~Parse White)
       White
       Just!"|"
       White
