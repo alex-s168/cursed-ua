@@ -93,7 +93,8 @@ Label‼ ← (
   | ⍤:0 $"[_] Parsing _:\n_":^0 ⊙◌)
 )
 
-Any! ←^ $"C~CascTry!(_)" /⍚$"_|_" ≡⍚$"(_)"
+Any!  ←^ $"C~CascTry!(_)" /⍚$"_|_" ≡⍚$"(_)"
+Anyv! ←^ $"un{dipdip} C~CascTry!(_)" /⍚$"_|_" ≡⍚$"({dipdip} _)"
 
 White  ← |1 Rep!Any!(Just!" "|Just!"\n"|Just!"\r")
 LineBr ← |1 Any!(Just!"\r\n"|Just!"\n")
@@ -161,6 +162,7 @@ StructFieldSep        ← |1 Any!(StructDefaultFieldSep|Just!" ")
 
   Parse ← |1.2 (
     Track!(|1.2
+      # TODO: use Anyv!
       Any!(
         ⊂:□[0 1]□ Just!"=~"
       | ⊂:□[0 1]□ Just!"←~"
@@ -524,4 +526,77 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   ⊃(°3S~Amount|°0Formatted) ◌End Parse Inp "!!!"
   ⊃(°2S~Amount|°1Formatted) ◌End Parse Inp "‼"
   ⊃(°3S~Amount|°1Formatted) ◌End Parse Inp "‼!"
+└─╴
+
+┌─╴String
+  ┌─╴Segment
+    ┌─╴Kind
+      |Escaped {Char}
+      |Text {Value}
+      |Placeholder
+
+      Json ← |1 ⍣(
+        ⍩(map{"kind" "char"} {"escape" ⊙}) °Escaped
+      | ⍩(map{"kind" "value"} {"text" ⊙}) °Text
+      | ⍩(map{"kind"}{"placeholder"}) °Placeholder
+      )
+    └─╴
+
+    |S {Span Kind}
+
+    Json ← |1 insert"span" ⊙Kind~Json°S
+
+    ParseEscape ← |1.2 Label‼"Escape Sequence"(
+      Track!(
+        Just!"\\"
+        Inp~Split1
+        ⊙□
+        ⊙Kind~Escaped
+      )
+      ⊙S
+    )
+
+    ◌◌End Just!"a" ParseEscape Inp "\\aa"
+
+    ParsePlaceholder ← |1.2 Label‼"Placeholder"(
+      Track!(
+        Just!"_"
+        ⊙Kind~Placeholder
+      )
+      ⊙S
+    )
+
+    ◌◌End ParsePlaceholder Inp "_"
+
+    ParseText ← |1.2 (
+      Track!(
+        Inp~Split1
+        ⊙⊸(⍤"Unexpected end of string"≠@"⊢)
+        ⊙Kind~Text
+      )
+      ⊙S
+    )
+
+    ◌◌End ParseText Inp "a"
+  └─╴
+
+  |S {Span WasRaw WasFmt Segments}
+
+  Json ← |1 (
+    {⊃(S~Span|⨬(False|True) S~WasRaw|⨬(False|True)S~WasFmt|≡⍚Segment~Json S~Segments)}
+    {"span" "was_raw" "was_fmt" "segments"}
+    map
+  )
+
+  ParseNormal ↚ |1.2 Label‼"Normal String Literal"(
+    Track!(
+      Just!"\""
+      While!Anyv!(Segment~ParseEscape|Segment~ParseText)
+      Just!"\""
+    )
+    ⊙(S⊙(0 0))
+  )
+
+  ◌ jsonJson ◌End ParseNormal Inp "\"Test String\""
+  ◌ jsonJson ◌End ParseNormal Inp "\"Test\\nString\""
 └─╴
