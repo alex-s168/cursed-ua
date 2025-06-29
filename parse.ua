@@ -569,6 +569,9 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
     ◌◌End ParsePlaceholder Inp "_"
 
     ParseText ← |1.2 (
+      ⊸⍣(
+        ⍩⍤"Unexpected line break"0 ◌ LineBr
+      | ◌)
       Track!(
         Inp~Split1
         ⊙⊸(⍤"Unexpected end of string"≠@"⊢)
@@ -618,5 +621,36 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $ $ multi line
   $     $ string
   $ end
-  jsonJson ◌End Just!"end" ParseMultiline Inp
+  ◌ jsonJson ◌End Just!"end" ParseMultiline Inp
+
+  ParseFmtNormal ↚ |1.2 Label‼"Normal Format String Literal"(
+    Track!(
+      Just!"$\""
+      While!Anyv!(Segment~ParsePlaceholder|Segment~ParseEscape|Segment~ParseText)
+      Just!"\""
+    )
+    ⊙(S⊙(0 0))
+  )
+
+  ◌ jsonJson ◌End ParseFmtNormal Inp "$\"Test String\""
+  ◌ jsonJson ◌End ParseFmtNormal Inp "$\"Test\\nString\""
+  ◌ jsonJson ◌End ParseFmtNormal Inp "$\"a_\\nString\""
+
+  ParseFmtMultiline ↚ |1.2 Label‼"Raw Format String Literal"(
+    Track!(
+      While!(
+        White
+        Just!"$$ "
+        While!Anyv!(Segment~ParsePlaceholder|Segment~ParseEscape|Segment~ParseText)
+        Any!(LineBr|End)
+      )
+      ⊙(°□∧(□˜⊂∩°□)⊙[])
+    )
+    ⊙(S⊙(1 0))
+  )
+
+  $ $$ multi line
+  $     $$ str_ing
+  $ end
+  ◌ jsonJson ◌End Just!"end" ParseFmtMultiline Inp
 └─╴
