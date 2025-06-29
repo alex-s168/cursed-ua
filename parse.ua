@@ -24,14 +24,6 @@ C ~ "lib.ua"
   ⍤""≍[5 2]
 └─╴
 
-# by @#7_11_14_17_19_22_23_28_29_31_33
-TreeStr ← (
-  ⍥(∩/◇⊂⍚(⨬⟜(+₁↯⧻)⊓□∘=1⊸type))∞⟜≡⋅0 # Flat and depth map
-  ⍜▽⍚(˜⊂@:)˜⊂0◡⋅⧈>                  # add : thingies
-  ⍚˜(⊂↯⊙@ ×2)                       # add padding
-  /$"_\n_"                          # Join with lines
-)
-
 AssNotEmpty ← ⟜(⍤"Array was empty"≠0⧻)
 
 AssHead! ← °^0⊸(⊢Inp~Str)
@@ -199,8 +191,6 @@ IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡�
 ┌─╴Ident
   |S {Span Subscript Text}
 
-  Fmt ← ⊂:⍣(""°0|$",_"°□) ⊃(S~Subscript|S~Text)
-
   Json ← map{"text" "subscript" "span"} {⊃(S~Text|JsonOpt!∘ S~Subscript|S~Span)}
 
   Parse ← |1.2 Label‼"Identifier"(
@@ -214,16 +204,14 @@ IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡�
   ⍤""≍S[0 10] 0 "HelloWorld" °"32" Inp~Str Parse Inp"HelloWorld32"
   ⍤""≍S[0 13] □32 "HelloWorld" °"a" Inp~Str Parse Inp"HelloWorld,32a"
 
-  ⍤""≍"Helo" Fmt◌ Parse Inp "Helo"
-  ⍤""≍"Helo,32"Fmt◌ Parse Inp "Helo,32"
+  ◌jsonJson ◌End Parse Inp "Helo"
+  ◌jsonJson ◌End Parse Inp "Helo,32"
 └─╴
 
 ┌─╴Path
   |S {Segments}
 
   Span ← |1 [⊓⊢⊣] ∩◇Ident~S~Span ⊃⊢⊣ S~Segments
-
-  Fmt ← ≡⍚Ident~Fmt°S
 
   Json ← map{"segments" "span"} {⊃(≡⍚Ident~Json S~Segments|Span)}
 
@@ -249,9 +237,6 @@ IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡�
     {⊃(Path~Json S~Path|⨬(False|True) S~Calling|JsonOpt!∘ S~Arg|S~Span)}
     map{"path" "calling" "arg" "span"}
   )
-
-  # too lazy to write fmt func
-  Fmt ← json Json
 
   # ^Pa~Th  or  ^Pa~Th(arg)  or  ^Pa~Th!  or  ^Pa~Th!(arg)
   Parse ← |1.2 Label‼"Attribute"(
@@ -295,11 +280,6 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 ┌─╴StructField
   |S {Span Default Name Attrs Comments}
 
-  Fmt ← {"Field" {⊃(
-        $"Name: \"_\"" Ident~Fmt S~Name
-      | "Attrs" ≡(□Attr~Fmt) S~Attrs
-      )}}
-
   Json ← (
     {⊃(Ident~Json S~Name
       | JsonOpt!Assign~Json S~Default
@@ -329,31 +309,31 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   # $ CoolField
   # Inp
   # ◌End P~StructField~Parse
-  #
+  # 
   # $ CoolField,23
   # Inp
   # ⍤""≍S0 Ident~S"CoolField" □23 [] [] ◌End Parse
-  #
+  # 
   # $ # some
   # $ #comments
   # $ 
   # $ CoolField,23
   # Inp
   # ⍤""≍S0 Ident~S"CoolField" □23 [] {" some" "comments"} ◌End Parse
-  #
+  # 
   # $ CoolField  =  + 1 2
   # Inp
   # ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] ◌End Parse
-  #
+  # 
   # $ CoolField  =  + 1 2| Next
   # Inp
   # ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °" Next" Inp~Str Parse
-  #
+  # 
   # $ CoolField  =  + 1 2
   # $ Next
   # Inp
   # ⍤""≍S□"  + 1 2" Ident~S"CoolField" 0 [] [] °"Next" Inp~Str Parse
-  #
+  # 
   # $ ^Attr(x) ^My~Module~Attr
   # $ ^Attr,3!(x)
   # $ CoolField  =  + 1 2
@@ -368,12 +348,6 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
 ┌─╴DataDefEnt
   |S {Members Attrs Name}
-
-  Fmt ← {"DataDefEnt" {⊃(
-        $"Name: _" FmtOpt!($"\"_\"" Ident~Fmt) S~Name
-      | "Attrs" ≡(□Attr~Fmt) S~Attrs
-      | "Members" ≡⍚StructField~Fmt S~Members
-      )}}
 
   Json ← (
     {⊃(JsonOpt!Ident~Json S~Name
@@ -410,18 +384,12 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $ } end
   Inp
   °" end" Inp~Str Parse
-  Fmt
-  TreeStr
-  ◌ # by&pf
+  ◌jsonJson
 └─╴
 
 ┌─╴DataDef
   ┌─╴Item
     |S {Span Ent Comments}
-
-    Fmt ← {"Item" ⊃(
-      | DataDefEnt~Fmt S~Ent
-      )}
 
     Json ← (
       {⊃(DataDefEnt~Json S~Ent|≡⍚Comment~Json S~Comments|S~Span)}
@@ -432,11 +400,6 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   |Struct {Item}
   |Variant {Items}
-
-  Fmt ← ⍣(
-    {"Struct"⊙} Item~Fmt°Struct
-  | {"Variants" ≡⍚Item~Fmt °Variant}
-  )
 
   Json ← (
     {⊃(⍣("struct" ◌°Struct
