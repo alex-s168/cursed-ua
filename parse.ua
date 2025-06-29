@@ -148,7 +148,7 @@ IndentGroup‼ ← (
 °""°"world" Inp~Str IndentGroup‼@[@] Inp "[]world"
 °"a"°"" Inp~Str IndentGroup‼@[@] Inp"[a]"
 
-# seperator after a field with default value
+# separator after a field with default value
 StructDefaultFieldSep ← |1 Any!(LineBr|Just!"|")
 StructFieldSep        ← |1 Any!(StructDefaultFieldSep|Just!" ")
 
@@ -254,7 +254,7 @@ IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡�
   Fmt ← json Json
 
   # ^Pa~Th  or  ^Pa~Th(arg)  or  ^Pa~Th!  or  ^Pa~Th!(arg)
-  Parse ← |1.2 Label‼"Attrbute"(
+  Parse ← |1.2 Label‼"Attribute"(
     Track!(
       Just!"^"
       Path~Parse
@@ -287,7 +287,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   Json ← (
     {⊃(S~Value|AssignSep~Json S~Sep)}
-    {"value" "seperator"}
+    {"value" "separator"}
     map
   )
 └─╴
@@ -328,7 +328,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   # $ CoolField
   # Inp
-  # ⍤""≍S0 Ident~S"CoolField" 0 [] [] ◌End Parse
+  # ◌End P~StructField~Parse
   #
   # $ CoolField,23
   # Inp
@@ -503,7 +503,7 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
   $ end
   Inp
   °"\nend" Inp~Str Parse
-  &p json Json
+  ◌json Json
 └─╴
 
 ┌─╴Exclamations
@@ -599,4 +599,24 @@ MultiAttrs ← ⊙(°□∧(□˜⊂∩°□)⊙[]) While!(White Attrs White)
 
   ◌ jsonJson ◌End ParseNormal Inp "\"Test String\""
   ◌ jsonJson ◌End ParseNormal Inp "\"Test\\nString\""
+
+  ParseMultiline ↚ |1.2 Label‼"Raw String Literal"(
+    Track!(
+      While!(
+        White
+        Just!"$ "
+        Track!(
+          Until!Any!(LineBr|End)
+          ⊙Segment~Kind~Text
+        )
+        ⊙Segment~S
+      )
+    )
+    ⊙(S⊙(1 0))
+  )
+
+  $ $ multi line
+  $     $ string
+  $ end
+  jsonJson ◌End Just!"end" ParseMultiline Inp
 └─╴
