@@ -1,7 +1,11 @@
 C ~ "lib.ua"
 
 ┌─╴Inp
-  ~ {Pos ← 0|Str}
+  ~ {
+    Pos ← 0
+    Str
+    Extra ← 0
+  }
 
   # Inp Head ? Amount Inp
   Split ← ˜(⍜Inp~Pos+ ⊙: ⊸⍜Inp~Str˜⊃↘↙)
@@ -174,15 +178,75 @@ StructFieldSep        ← |1 Any!(StructDefaultFieldSep|Just!" ")
   ⍤""≍ S[0 1] 1 1 ◌End Parse Inp"↚"
 └─╴
 
+SubscriptDigits ← "₀₁₂₃₄₅₆₇₈₉"
+
 Digit ← |1.2 ⊙⊸(⍤"Expected digit"×⊃(≥@0|≤@9)) ⊙⊢ Inp~Split1
 °@4 °"hey" Inp~Str Digit Inp "4hey"
+
+SubscriptDigit ← |1.2 (
+  ⊙⊢ Inp~Split1
+  ⊙⊸(⍤"Expected subscript digit" /+=SubscriptDigits)
+)
+°@₄ °"hey" Inp~Str SubscriptDigit Inp "₄hey"
 
 DigitNum ← ⊙(⋕≡°□) While!Digit
 °42 °"hey" Inp~Str DigitNum Inp "42hey"
 
-Subscript ← DigitNum Any!(Just!"__"|Just!",")
-°123 °"hey" Inp~Str Subscript Inp ",123hey"
-°123 °"hey" Inp~Str Subscript Inp "__123hey"
+┌─╴Subscript
+  |S {Span Num Side SideQuant}
+
+  Json ← (
+    {⊃(S~Span
+      | S~Num
+      | JsonOpt!∘ S~Side
+      | JsonOpt!∘ S~SideQuant
+      )}
+    {"span" "number" "side" "side_quantifier"}
+    map
+  )
+
+  AsciiSideToUnicode ↚ |1.2 (
+    Anyv!(
+      ⊙@⌞ Just!"<"
+    | ⊙@⌟ Just!">"
+    )
+  )
+
+  AsciiDigitsToUnicode ↚ |1.2 (
+    While!Digit
+    ⊙(≡(⊡:SubscriptDigits) ◇∘)
+  )
+
+  SubscriptSep ↚ |1 Any!(Just!","|Just!"__")
+
+  # parses ascii string and returns the formatted
+  AsciiToUnicode ↚ |1.2 (
+    While!Anyv!(AsciiSideToUnicode|AsciiDigitsToUnicode)
+    ⊙(◇∘/⍚⊂)
+  )
+
+  UnicodeSide ↚ |1.2 (
+    Anyv!(
+      ⊙@< Just!"⌞"
+    | ⊙@> Just!"⌟"
+    )
+  )
+
+  UnicodeDigits ↚ |1.2 (
+    While!(
+      SubscriptDigit
+      ⊙(⊚=SubscriptDigits)
+    )
+    ⊙◇∘
+  )
+
+  Parse ← |1.2 (
+    Track!()
+    ⊙S
+  )
+  °123 °"hey" Inp~Str Parse Inp ",123hey"
+  °123 °"hey" Inp~Str Parse Inp "__123hey"
+└─╴
 
 IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡₀(⧻regex"\\p{Letter}").Inp~Str.
 °"a" °"32a" Inp~Str IdentStart Inp "a32a"
