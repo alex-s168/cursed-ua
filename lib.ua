@@ -11,10 +11,10 @@ Args! ↚^ ⊂"⊢⊢"⋅repr
 # zero-initialize struct `^0`
 Z! ← °[°^0] ↯⊙0 Args!^0
 
-Indent‼ ← ⬚0\(⍤"mismatched parenthesis"≥0. ⍣(+1°^0|-1°^1|◌):)
+Indent‼ ← ⬚0\(⍤"mismatched parenthesis"⊸≥0 ⍣(+1°^0|-1°^1|◌) ˜⊙∘)
 
-RmTail  ← ⍣(↘¯:⟜(=⊣):|◌)
-RmBegin ← ⍣(↘:⟜(=⊢):|◌)
+RmTail  ← ⍣(↘¯ ˜⊙∘ ⟜(=⊣) ˜⊙∘|◌)
+RmBegin ← ⍣(↘ ˜⊙∘ ⟜(=⊢) ˜⊙∘|◌)
 
 # macro args: UpIndent DownIndent SplitBy:ch|[]ch
 #
@@ -31,15 +31,15 @@ SplitWithIndent‼! ← (
 #
 # Cases:or[0|arr[box[str]]] Value:str ? arm:str
 ParseMatchArm ← ⍣(
-  ⌕"=>".
-  +↘¯ 1⊂0. # expand selection to =>
+  ⊸⌕"=>"
+  +↘¯ 1⊸⊂0 # expand selection to =>
   ⊜□¬
-  ⍤""=2⧻.
+  ⍤""=2⊸⧻
   ∩°□°[⊙⊙]
 
-  ≍"."▽≠@ ..
+  ≍"."▽≠@ ⟜∘ ⟜∘
   ⨬(SplitWithIndent‼!@(@)@+
-    ▽≡◇(¬/×=@ ).
+    ▽≡◇(¬/×=@ ) ⟜∘
   | 0)
 | ⍤"invalid pattern match arm synta"0
 )
@@ -54,13 +54,13 @@ ParseMatchArm ← ⍣(
 # ```
 ParseMatchArms! ← (
   °□/⍚⊂ ≡⍚(≡{⊙⊙}⊙¤ ParseMatchArm)
-  ⍤"only one default arm allowed"≤1⧻.⊃▽(▽¬) ≡◇≍0≡⊢.
+  ⍤"only one default arm allowed"≤1⊸⧻⊃▽(▽¬) ≡◇≍0 ⊸≡⊢
   ⊙(≡(□^0∩°□°□°[⊙⊙]))
   ♭≡(⊡1)
 )
 
 # code mapper of InvTry!
-EmitInvTry ← $"obv((_)|(_))":∩($"try(_)"⨬(°□◇⊢|°□/⍚$"_|_")≥2⧻.)⊸≡⍚($"un(_)")
+EmitInvTry ← $"obv((_)|(_))" ˜⊙∘ ∩($"try(_)"⨬(°□◇⊢|°□/⍚$"_|_")≥2⊸⧻)⊸≡⍚($"un(_)")
 
 # invertible try
 #
@@ -73,10 +73,10 @@ InvTry! ←^ EmitInvTry
 # Join arr of boxed strings with ^0
 #
 # example:  Join!$"_, _"
-Join! ← ⍣(""◌°0|°□⊢°1|°□/⍚^0 ◌) ⧻.
+Join! ← ⍣(""◌°0|°□⊢°1|°□/⍚^0 ◌) ⊸⧻
 
 # code generator for `Match!`
-EmitMatch ← $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop":°□⊢) ≠0⧻. ⊙Join!$"_|_" ParseMatchArms!($"case(_) un(_)":)
+EmitMatch ← $"try(_)" ⨬($"_|assert\"pattern match failure\"0"◌|$"_|(_) pop"˜⊙∘°□⊢) ≠0⊸⧻ ⊙Join!$"_|_" ParseMatchArms!($"case(_) un(_)" ˜⊙∘)
 
 # example:
 # ```uiua
@@ -99,12 +99,12 @@ Match! ←^ EmitMatch
 #
 # example:
 # ```uiua
-# Enum!(
-#   Player = 4  # start counting at 4
-# | Sheep       # id 5
-# | Horse       # id 6
-# | ..Mob       # all other ids are Mobs
-# )
+# . Enum!(
+# .   Player = 4  # start counting at 4
+# . | Sheep       # id 5
+# . | Horse       # id 6
+# . | ..Mob       # all other ids are Mobs
+# . )
 # ```
 #
 # Currently the entry with the ".." in front of it assignes to all unassigned IDs, instead of just the following.
@@ -120,30 +120,30 @@ Match! ←^ EmitMatch
 Enum! ←^ (
   ≡⍚(
     SplitWithIndent‼!@(@)@←
-    ⊂{⊙⊙} ▽≠@ . ⊃(⨬(:0)(:1↘2) =0⬚1⊢⊚⌕"..". °□⊢|↘1)
+    ⊂{⊙⊙} ▽⊸≠@ ⊃(⨬(˜⊙∘0)(˜⊙∘1↘2) =0⬚1⊢⊚⌕".."⟜∘ °□⊢|↘1)
   )
   # []box(box[str]|is_rem:box[bol]|overwr:opt[box[int]])
   ⬚(□{0 0 "neg1"})\(
-    ⨬(□⊂°□⊙(□$"+1(_)"°□◇⊣)|⊙◌)=3◇⧻.:
+    ⨬(□⊂°□⊙(□$"+1(_)"°□◇⊣)|⊙◌)=3⊸◇⧻˜⊙∘
   )
 
   ⊃(≡⍚(
       °[⊙⊙⊙]
       ◇⊃(
         ⊃($"_ => _" ⊙◌
-        | $"_ => _" : ⊙◇⨬$"(_)"("."◌))
+        | $"_ => _" ˜⊙∘ ⊙◇⨬$"(_)"("."◌))
       | ⊙◌
         ◇$"\"_\""
-        :⊃(
+        ˜⊙∘⊃(
           $"(_) => _"
-        | $"(_) => _":
+        | $"(_) => _" ˜⊙∘
         )
       )
     )
     ∩₄EmitMatch
     $"EnumBin = obv(_|_)"
     ⊙$"EnumStr = obv(_|_)"
-  | ≡⍚($"_ = $_ _" . ⊙◌ °{⊙⊙⊙})
+  | ≡⍚($"_ = $_ _" ⟜∘ ⊙◌ °{⊙⊙⊙})
     Join!$"_\n_"
   )
   ⇌{⊙⊙⊙}
@@ -152,11 +152,11 @@ Enum! ←^ (
 
 # See `SelectBits!`
 SelectBitsGen ← (
-  ⊃(⊂□"0"↘¯1 \⍚($"+__") .≡⍚$"(_)"
+  ⊃(⊂□"0"↘¯1 \⍚($"+__") ⟜∘ ≡⍚$"(_)"
     $"desrow(revbit,8)"
     ⊙($"fork(_)" /$"_|_" ≡⍚˜$"tak_dro_")
-    $"_ _":
-  | $"unbitrevjoi,__"⧻: $"bra(_)" /$"_|_" ≡⍚$"revfil0tak_rev".)
+    $"_ _" ˜⊙∘
+  | $"unbitrevjoi,__"⧻˜⊙∘ $"bra(_)" /$"_|_" ≡⍚$"revfil0tak_rev" ⟜∘)
   $"obv(_\n| _)"
 )
 
@@ -172,7 +172,7 @@ SelectBits! ←^ SelectBitsGen
 # defines a fake un- inverse (that errors when it is called) for the given function
 #
 # this can be used to get the no inverse found error at runtime instead of compile time
-NoInv! ←^ $"obv(_|assert\"NoInv! inverse was called\"0 _)" ◇⊢: ⍥(⊂"0 "): ⍥(⊂"pop"):"" :°[⊙⊙] ⊢:
+NoInv! ←^ $"obv(_|assert\"NoInv! inverse was called\"0 _)" ◇⊢˜⊙∘ ⍥(⊂"0 ")˜⊙∘ ⍥(⊂"pop")˜⊙∘"" ˜⊙∘°[⊙⊙] ⊢ ˜⊙∘
 
 ┌─╴TryRes
   |Ok {Val}
@@ -180,7 +180,7 @@ NoInv! ←^ $"obv(_|assert\"NoInv! inverse was called\"0 _)" ◇⊢: ⍥(⊂"0 "
 
   Unwrap ← ⍣(
     °Ok
-  | [] ⍤$"Tried:\n_":0 ⊙◌ °Err
+  | [] ⍤$"Tried:\n_"˜⊙∘0 ⊙◌ °Err
   )
 └─╴
 
@@ -190,7 +190,7 @@ CascTryImpl‼ ← ⍣(
   ⍩(TryRes~Ok⊙◌) °TryRes~Ok
 | °TryRes~Err
   # ErrMsg Orig
-  :⊙Try!^1
+  ˜⊙∘⊙Try!^1
   # AddErrMsg ErrMsg 
   ⍣(⍩(TryRes~Ok⊙◌) °TryRes~Ok
   | °TryRes~Err

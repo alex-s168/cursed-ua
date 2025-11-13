@@ -260,7 +260,7 @@ IdentStart ← ⍣(Inp~Split ⊢|⊃(Inp~MoveToEnd|Inp~Str)◌) ⊙◌ ⊚¬≡�
   Parse ← |1.2 Label‼"Identifier"(
     Track!(
       ⊙AssNotEmpty IdentStart
-      ⍣(⊙□ Subscript|⊙0)
+      ⍣(⊙□ Subscript~Parse|⊙0)
     )
     ⊙S
   )

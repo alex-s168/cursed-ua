@@ -60,7 +60,7 @@ M₁ ← Match!(
 └─╴
 
 E~EnumStr E~Uuid
-⍤""≍"Uuid".
+⍤""⊸≍"Uuid"
 °E~EnumStr
 ⍤""=E~Uuid
 
@@ -73,7 +73,7 @@ E~EnumStr E~Uuid
 ⍤""=E~User
 
 231
-{SelectBits!(3|3|+.1)}
+{SelectBits!(3|3|˙+1)}
 ⍤""≍{1_1_1 0_0_1 1_1}
 
 1_1_1 0_0_1 1_1
@@ -81,5 +81,5 @@ E~EnumStr E~Uuid
 ⍤""≍231
 
 [231 1]
-{SelectBits!(3|3|+.1|4|4)}
+{SelectBits!(3|3|˙+1|4|4)}
 ⍤""≍{1_1_1 0_0_1 1_1 0_0_0_0 0_0_0_1}
